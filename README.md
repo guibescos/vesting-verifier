@@ -8,9 +8,9 @@ npm install
 ### Verify a vesting account (only relevant for locked tokens)
 
 To verify a vesting account has been setup properly you need 3 things : 
-- A positions account address. This is the accounts unique identifier.
-- The expected owner (the public key you expect to be the beneficiary of the account)
-- The expected balance (the balance you expect the owner to be entitled to)
+- A positions account address. This is the account's unique identifier.
+- The expected owner (the public key you expect to be the beneficiary of the account).
+- The expected balance (the balance you expect the owner to be entitled to).
 
 Run the following command from the root directory: 
 ```
