@@ -1,12 +1,13 @@
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import idl from "./idl/staking.json";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, STAKE_CONFIG_ID } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Staking } from "./idl/staking";
 import assert from "assert"
 import { splTokenProgram } from "@coral-xyz/spl-token"
 import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import { program } from "commander";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 const ONE_YEAR = new BN(3600 * 24 * 365);
 const VESTING_PROGRAM_ID = new PublicKey("pytS9TjG1qyAZypk7n8rw8gfW9sUaqqYyMhJQ4E7JCQ")
@@ -18,16 +19,15 @@ program
   .version("1.0.0");
 
 program.command("verify").description("Verify a vesting account given its position account address")
-.requiredOption("-p, --position <pubkey>", "Position account address")
 .requiredOption("-o --owner <pubkey>", "Expected owner")
 .requiredOption("-b --balance <number>", "Expected balance")
-.option("-u --url <string>", "RPC URL to use", "https://api.mainnet-beta.solana.com")
+.option("-u --url <string>", "RPC URL to use", "https://mainnet.helius-rpc.com/?api-key=10f312e5-47b7-41b3-8bd1-8aa2f6a6b948")
 .action(async (options : any) => {
-    const positionAccountAddress = new PublicKey(options.position);
     const owner = new PublicKey(options.owner);
     const balance = new BN(options.balance).mul(new BN(10).pow(new BN(6)));
-
+    
     const provider = new AnchorProvider(new Connection(options.url), new NodeWallet(new Keypair()), AnchorProvider.defaultOptions());
+    const positionAccountAddress = await getMainPositionsAccount(provider.connection,owner)
     const tokenProgram = splTokenProgram({programId: TOKEN_PROGRAM_ID, provider })
     const stakingProgram = new Program<Staking>(idl as Staking, VESTING_PROGRAM_ID, provider);
     const positionAccountInfo = await stakingProgram.provider.connection.getAccountInfo(positionAccountAddress);
@@ -57,10 +57,35 @@ program.command("verify").description("Verify a vesting account given its positi
     assert(custodyAccountData.mint.equals(PYTH_TOKEN_ADDRESS), "Custody account mint is not the expected one")
     assert(custodyAccountData.amount.eq(new BN(0)), "This account has already received the tokens")
 
-    console.log(`Succesfully verified vesting account : ${positionAccountAddress.toBase58()}`)
-    console.log(`With owner ${owner.toBase58()} and balance ${options.balance} PYTH`)
+    console.log(`Succesfully verified vesting account`)
+    console.log(`for owner ${owner.toBase58()} and balance ${options.balance} PYTH`)
     console.log(`Tokens must be sent to: ${custodyAccountAddress.toBase58()}`) 
 });
 
+
+async function getMainPositionsAccount(connection : Connection, owner : PublicKey){
+  const response = await connection.getProgramAccounts(
+    VESTING_PROGRAM_ID,
+    {
+      encoding: "base64",
+      filters: [
+        {
+          memcmp: {
+            offset : 0,
+            bytes : bs58.encode(Buffer.from("55c3f14f7cc04f0b", "hex"))
+          },
+        },
+        {
+          memcmp: {
+            offset: 8,
+            bytes: owner.toBase58(),
+          },
+        },
+      ],
+    }
+  );
+  assert(response.length === 1, "Positions account not found");
+  return response[0].pubkey;
+}
 
 program.parse();
