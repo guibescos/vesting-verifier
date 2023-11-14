@@ -59,7 +59,7 @@ program.command("verify").description("Verify a vesting account given its positi
 
     console.log(`Succesfully verified vesting account`)
     console.log(`for owner ${owner.toBase58()} and balance ${options.balance} PYTH`)
-    console.log(`Tokens must be sent to: ${custodyAccountAddress.toBase58()}`) 
+    console.log(`✅ Please send ${options.balance} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
 });
 
 
