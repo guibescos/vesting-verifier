@@ -55,7 +55,7 @@ program.command("verify").description("Verify a vesting account given its positi
 
     assert(custodyAccountData, "Custody account data not found");
     assert(custodyAccountData.mint.equals(PYTH_TOKEN_ADDRESS), "Custody account mint is not the expected one")
-    assert(custodyAccountData.amount.eq(0), "This account has already received the tokens")
+    assert(custodyAccountData.amount.eq(new BN(0)), "This account has already received the tokens")
 
     console.log(`Succesfully verified vesting account : ${positionAccountAddress.toBase58()}`)
     console.log(`With owner ${owner.toBase58()} and balance ${options.balance} PYTH`)

@@ -14,15 +14,17 @@ To verify a vesting account has been setup properly you need 3 things :
 
 Run the following command from the root directory: 
 ```
-npm run cli verify -p ${POSITION_ACCOUNT} -o ${EXPECTED_OWNER_PUBKEY} -b ${EXPECTED_BALANCE}
+npm run cli verify -- -p ${POSITION_ACCOUNT} -o ${EXPECTED_OWNER_PUBKEY} -b ${EXPECTED_BALANCE}
 ```
 
 If successful the output will be something like this: 
 
 ```
-Succesfully verified vesting account : J2i217izZR97ZfxF9uKdFFx2VaUmRiV1Dv3rQ3njaZFe
-With owner BTwXQZS3EzfxBkv2A54estmn9YbmcpmRWeFP4f3avLi4 and balance 1 PYTH
-Tokens must be sent to: 5rc39nNUqWAKHZvLVkUg5zovJtMyeA7fiCcqKHpkgSnh
+npm run cli verify -- -p BPXPkj7WLAxUrotGNkC9bNnTTqPJsJD4QLDKuRhjBoAj -o ADBD8FKZXbHLTbJqJYNYPkiKqZp9AXg9EFU43oxZKeD2 -b 600000000
+
+Succesfully verified vesting account : BPXPkj7WLAxUrotGNkC9bNnTTqPJsJD4QLDKuRhjBoAj
+With owner ADBD8FKZXbHLTbJqJYNYPkiKqZp9AXg9EFU43oxZKeD2 and balance 600000000 PYTH
+Tokens must be sent to: 61YcP8msC5F3ZTLy99VWM2oom6y47UzNmSQQdXMmdCG1
 ```
 
 You can then transfer the tokens to the address printed.
