@@ -1,6 +1,6 @@
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import idl from "./idl/staking.json";
-import { Connection, Keypair, PublicKey, STAKE_CONFIG_ID } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Staking } from "./idl/staking";
 import assert from "assert"
