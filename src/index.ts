@@ -55,11 +55,20 @@ program.command("verify").description("Verify a vesting account given its positi
 
     assert(custodyAccountData, "Custody account data not found");
     assert(custodyAccountData.mint.equals(PYTH_TOKEN_ADDRESS), "Custody account mint is not the expected one")
-    assert(!custodyAccountData.amount.gte(metadataAccountData.lock.periodicVestingAfterListing.initialBalance), "This account has already received the tokens")
 
+    const targetBalance = metadataAccountData.lock.periodicVestingAfterListing.initialBalance;
+    
     console.log(`Succesfully verified vesting account`)
     console.log(`for owner ${owner.toBase58()} and balance ${options.balance} PYTH`)
-    console.log(`✅ Please send ${options.balance} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
+    if (custodyAccountData.amount.eq(0)){
+      console.log(`✅ Please send ${options.balance} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
+    } else if (custodyAccountData.amount.eq(targetBalance)) {
+      console.log(`✅ This account has already received the tokens, not further action required`); 
+    } else if (custodyAccountData.amount.gt(targetBalance)){
+      console.log(`❌ This account has received ${custodyAccountData.amount.sub(targetBalance).div(new BN(10).pow(new BN(6))).toString()} tokens more than expected`); 
+    } else if (custodyAccountData.amount.lt(targetBalance)){
+      console.log(`✅ This account hasn't received the totality of their tokens. Please send ${targetBalance.sub(custodyAccountData.amount).div(new BN(10).pow(new BN(6))).toString()} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
+    }
 });
 
 
