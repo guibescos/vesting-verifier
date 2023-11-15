@@ -60,6 +60,7 @@ program.command("verify").description("Verify a vesting account given its positi
     
     console.log(`Succesfully verified vesting account`)
     console.log(`for owner ${owner.toBase58()} and balance ${options.balance} PYTH`)
+    console.log(`The custody token account is ${custodyAccountAddress.toBase58()}`)
     if (custodyAccountData.amount.eq(0)){
       console.log(`✅ Please send ${options.balance} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
     } else if (custodyAccountData.amount.eq(targetBalance)) {
