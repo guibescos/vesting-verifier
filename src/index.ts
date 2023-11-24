@@ -98,8 +98,8 @@ async function getMainPositionsAccount(connection : Connection, owner : PublicKe
       ],
     }
   );
-  assert(response.length === 1, "Positions account not found");
-  return response[0].pubkey;
+  assert(response.length >= 1, "Positions account not found");
+  return response.map((x) => x.pubkey).sort()[response.length -1];
 }
 
 const addCommas = (x: string) => {
