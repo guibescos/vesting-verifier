@@ -57,8 +57,8 @@ program.command("verify").description("Verify a vesting account given its positi
 
     const targetBalance = metadataAccountData.lock.periodicVestingAfterListing.initialBalance;    
 
-    if(!metadataAccountData.lock.periodicVestingAfterListing.initialBalance.eq(balance)){
-      console.log(`❌ Specified balance does not match with smart contract balance: contract ${addCommas(metadataAccountData.lock.periodicVestingAfterListing.initialBalance.div(new BN(10).pow(new BN(6))).toString())} vs specified ${addCommas(options.balance.toString())}`);
+    if(!targetBalance.eq(balance)){
+      console.log(`❌ Specified balance does not match with smart contract balance: contract ${addCommas(targetBalance.div(new BN(10).pow(new BN(6))).toString())} vs specified ${addCommas(options.balance.toString())}`);
       return;
     }
 
