@@ -45,7 +45,6 @@ program.command("verify").description("Verify a vesting account given its positi
     assert(metadataAccountData, "Metadata account data not found");
     assert(metadataAccountData.owner.equals(owner), "Metadata account owner field is not the expected one")
     assert(metadataAccountData.lock.periodicVestingAfterListing, "Metadata account is not periodic vesting after listing")
-    // assert(metadataAccountData.lock.periodicVestingAfterListing.initialBalance.eq(balance), "Vesting schedule has the wrong initial balance")
     assert(metadataAccountData.lock.periodicVestingAfterListing.numPeriods.eq(new BN(4)), "Vesting schedule has the wrong number of periods")
     assert(metadataAccountData.lock.periodicVestingAfterListing.periodDuration.eq(ONE_YEAR), "Vesting schedule has the wrong period duration")
 
@@ -59,7 +58,8 @@ program.command("verify").description("Verify a vesting account given its positi
     const targetBalance = metadataAccountData.lock.periodicVestingAfterListing.initialBalance;    
 
     if(!metadataAccountData.lock.periodicVestingAfterListing.initialBalance.eq(balance)){
-      console.log(`Specified balance does not match with smart contract balance: contract ${metadataAccountData.lock.periodicVestingAfterListing.initialBalance.div(new BN(10).pow(new BN(6))).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} vs specified ${options.balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`);
+      console.log(`❌ Specified balance does not match with smart contract balance: contract ${addCommas(metadataAccountData.lock.periodicVestingAfterListing.initialBalance.div(new BN(10).pow(new BN(6))).toString())} vs specified ${addCommas(options.balance.toString())}`);
+      return;
     }
 
     console.log(`Succesfully verified vesting account`)
