@@ -24,7 +24,7 @@ program.command("verify").description("Verify a vesting account given its positi
 .option("-u --url <string>", "RPC URL to use", "https://mainnet.helius-rpc.com/?api-key=10f312e5-47b7-41b3-8bd1-8aa2f6a6b948")
 .action(async (options : any) => {
     const owner = new PublicKey(options.owner);
-    const balance = new BN(options.balance).mul(new BN(10).pow(new BN(6)));
+    const balance = new BN(removeCommas(options.balance)).mul(new BN(10).pow(new BN(6)));
     
     const provider = new AnchorProvider(new Connection(options.url), new NodeWallet(new Keypair()), AnchorProvider.defaultOptions());
     const positionAccountAddress = await getMainPositionsAccount(provider.connection,owner)
@@ -45,7 +45,6 @@ program.command("verify").description("Verify a vesting account given its positi
     assert(metadataAccountData, "Metadata account data not found");
     assert(metadataAccountData.owner.equals(owner), "Metadata account owner field is not the expected one")
     assert(metadataAccountData.lock.periodicVestingAfterListing, "Metadata account is not periodic vesting after listing")
-    // assert(metadataAccountData.lock.periodicVestingAfterListing.initialBalance.eq(balance), "Vesting schedule has the wrong initial balance")
     assert(metadataAccountData.lock.periodicVestingAfterListing.numPeriods.eq(new BN(4)), "Vesting schedule has the wrong number of periods")
     assert(metadataAccountData.lock.periodicVestingAfterListing.periodDuration.eq(ONE_YEAR), "Vesting schedule has the wrong period duration")
 
@@ -58,21 +57,21 @@ program.command("verify").description("Verify a vesting account given its positi
 
     const targetBalance = metadataAccountData.lock.periodicVestingAfterListing.initialBalance;    
 
-    if(!metadataAccountData.lock.periodicVestingAfterListing.initialBalance.eq(balance)){
-      console.log(`Specified balance does not match with smart contract balance: contract ${metadataAccountData.lock.periodicVestingAfterListing.initialBalance.div(new BN(10).pow(new BN(6))).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} vs specified ${options.balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`);
+    if(!targetBalance.eq(balance)){
+      console.log(`❌ Specified balance does not match with smart contract balance: contract ${addCommas(targetBalance.div(new BN(10).pow(new BN(6))).toString())} vs specified ${addCommas(options.balance.toString())}`);
     }
 
     console.log(`Succesfully verified vesting account`)
-    console.log(`for owner ${owner.toBase58()} and balance ${options.balance} PYTH`)
+    console.log(`for owner ${owner.toBase58()} and balance ${addCommas(options.balance)} PYTH`)
     console.log(`The custody token account is ${custodyAccountAddress.toBase58()}`)
-    if (custodyAccountData.amount.eq(0)){
-      console.log(`✅ Please send ${options.balance} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
+    if (custodyAccountData.amount.eq(new BN(0))){
+      console.log(`✅ Please send ${addCommas(options.balance)} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
     } else if (custodyAccountData.amount.eq(targetBalance)) {
       console.log(`✅ This account has already received the tokens, not further action required`); 
     } else if (custodyAccountData.amount.gt(targetBalance)){
       console.log(`❌ This account has received ${custodyAccountData.amount.sub(targetBalance).div(new BN(10).pow(new BN(6))).toString()} tokens more than expected`); 
     } else if (custodyAccountData.amount.lt(targetBalance)){
-      console.log(`✅ This account hasn't received the totality of their tokens. Please send ${targetBalance.sub(custodyAccountData.amount).div(new BN(10).pow(new BN(6))).toString()} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
+      console.log(`✅ This account hasn't received the totality of their tokens. Please send ${addCommas(targetBalance.sub(custodyAccountData.amount).div(new BN(10).pow(new BN(6))).toString())} PYTH Tokens to \x1b[32m${custodyAccountAddress.toBase58()}`); 
     }
 });
 
@@ -100,6 +99,14 @@ async function getMainPositionsAccount(connection : Connection, owner : PublicKe
   );
   assert(response.length === 1, "Positions account not found");
   return response[0].pubkey;
+}
+
+const addCommas = (x: string) => {
+  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+const removeCommas = (x: string) => {
+  return x.replace(/,/g, "");
 }
 
 program.parse();
