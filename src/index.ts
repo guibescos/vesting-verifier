@@ -1,6 +1,6 @@
 import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import idl from "./idl/staking.json";
-import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import { Staking } from "./idl/staking";
 import assert from "assert";
@@ -89,6 +89,8 @@ program
         custodyAccountAddress,
       );
 
+      const ownerAccountData = await stakingProgram.provider.connection.getAccountInfo(owner);
+
       console.log(
         "\x1b[0mVerifying account",
         index + 1,
@@ -96,6 +98,9 @@ program
         positionAccountAddresses.length,
       );
       try {
+        assert(PublicKey.isOnCurve(owner), "Owner is not on curve");
+        assert(!ownerAccountData || ownerAccountData.owner.equals(SystemProgram.programId), "Owner is not a system program account");
+
         assert(positionAccountInfo, "Position account info not found");
         assert(
           positionAccountInfo.owner.equals(VESTING_PROGRAM_ID),
