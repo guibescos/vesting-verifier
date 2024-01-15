@@ -98,6 +98,11 @@ program
         positionAccountAddresses.length,
       );
       try {
+        if (!PublicKey.isOnCurve(owner)){
+          console.log(
+            "❗ Owner is a smart contract, proceed with caution"
+          )
+        }
         assert(!ownerAccountData || ownerAccountData.owner.equals(SystemProgram.programId), "Owner is not a system program account");
 
         assert(positionAccountInfo, "Position account info not found");
