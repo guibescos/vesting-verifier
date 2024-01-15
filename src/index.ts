@@ -98,7 +98,6 @@ program
         positionAccountAddresses.length,
       );
       try {
-        assert(PublicKey.isOnCurve(owner), "Owner is not on curve");
         assert(!ownerAccountData || ownerAccountData.owner.equals(SystemProgram.programId), "Owner is not a system program account");
 
         assert(positionAccountInfo, "Position account info not found");
